@@ -19,12 +19,38 @@ namespace NimapAppProject.Controllers
         }
 
 
-        public async Task<IActionResult> Index()
+        /*public async Task<IActionResult> Index()
         {
               return _context.Products != null ? 
                           View(await _context.Products.ToListAsync()) :
                           Problem("Entity set 'ProductContext.Products'  is null.");
+        }*/
+
+        public IActionResult Index(int pg = 1)
+        {
+            List<Product> products = _context.Products.ToList();
+
+            const int pageSize = 5;
+
+            if (pg < 1)
+                pg = 1;
+
+            int recsCount = products.Count();
+
+            var pager = new Pager(recsCount, pg, pageSize);
+
+            int recSkip = (pg - 1) * pageSize;
+
+            var data = products.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            this.ViewBag.Pager = pager;
+
+
+
+
+            return View(data);
         }
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Products == null)
@@ -41,6 +67,8 @@ namespace NimapAppProject.Controllers
 
             return View(product);
         }
+
+      
 
         public IActionResult Create()
         {
